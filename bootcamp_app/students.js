@@ -23,18 +23,36 @@ LIMIT 5;
 .catch(err => console.error('query error', err.stack));
 
 
+// const cohortName = process.argv[2]
+// const resultsNumber = process.argv[3]
+// pool.query(`
+// SELECT students.id as student_id, students.name as name, cohorts.name as cohort
+// FROM students
+// JOIN cohorts ON cohorts.id = students.cohort_id
+// WHERE cohorts.name LIKE '%${cohortName}%'
+// LIMIT ${resultsNumber};
+// `)
+// .then(res => {
+//   res.rows.forEach(student => {
+//     console.log(`${student.name} has an id of ${student.student_id} and was in the ${student.cohort} cohort`);
+//   })
+// });
+
 const cohortName = process.argv[2]
 const resultsNumber = process.argv[3]
-pool.query(`
+const queryString =`
 SELECT students.id as student_id, students.name as name, cohorts.name as cohort
-FROM students
-JOIN cohorts ON cohorts.id = students.cohort_id
-WHERE cohorts.name LIKE '%${cohortName}%'
-LIMIT ${resultsNumber};
-`)
+  FROM students
+  JOIN cohorts ON cohorts.id = students.cohort_id
+  WHERE cohorts.name LIKE $1
+  LIMIT $2;
+`;
+const values = ['%${cohortName}%',resultsNumber]
+
+
+pool.query(queryString, values)
 .then(res => {
   res.rows.forEach(student => {
     console.log(`${student.name} has an id of ${student.student_id} and was in the ${student.cohort} cohort`);
   })
 });
-
